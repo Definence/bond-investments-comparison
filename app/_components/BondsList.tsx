@@ -40,7 +40,7 @@ export const BondsList: React.FC<BondsListProps> = ({
           <div key={index} className="bg-gray-50 p-4 rounded-lg flex items-center justify-between">
             <div>
               <div className="font-semibold text-gray-800">{bond.name}</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-700">
                 Ціна: {formatNumber(bond.price)} грн |
                 Погашення: {formatNumber(bond.redemptionAmount)} грн |
                 Дивідендів: {bond.dividends.length}
@@ -58,7 +58,7 @@ export const BondsList: React.FC<BondsListProps> = ({
 
       <button
         onClick={onShowResults}
-        className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+        className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
       >
         <TrendingUp className="w-5 h-5" />
         Розрахувати та порівняти
