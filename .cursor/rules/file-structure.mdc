@@ -1,0 +1,162 @@
+---
+alwaysApply: true
+---
+
+# Component Organization
+
+## Reusable Components
+- **Location**: `app/components/`
+- Used across multiple routes/pages
+- Examples: `TextInput`, `NumberInput`, `DateInput`, `Button`, `Card`
+- Export from `app/components/index.ts`
+
+## Page-Specific Components
+- **Location**: `app/_components/`
+- Specific to a single page/route
+- Examples: `DividendsInput`, `BondForm`, `ResultsDisplay`
+- Underscore prefix (`_`) indicates private/internal (not a route)
+
+## When to Extract
+
+**Reusable (`app/components/`):**
+- Used in 2+ places
+- UI primitive (input, button, card)
+- No domain-specific business logic
+
+**Page-Specific (`app/_components/`):**
+- Single page/route usage
+- Domain-specific logic
+- Extracted for readability/single responsibility
+
+## Guidelines
+1. Single responsibility per component
+2. Start in `_components/`, move to `components/` if reused
+3. PascalCase naming
+4. TypeScript types required
+5. Separate reusable UI from business logic
+
+```
+app/
+├── components/        # Reusable (across routes)
+│   ├── ui/           # UI primitives (optional)
+│   ├── TextInput.tsx
+│   └── index.ts
+└── _components/      # Page-specific (private)
+    └── DividendsInput.tsx
+```
+
+---
+
+# Page Organization
+
+## Special Files
+
+**Required:**
+- `page.tsx` - Route UI (creates public route)
+- `layout.tsx` - Shared UI wrapper
+
+**Optional:**
+- `loading.tsx` - Loading state
+- `error.tsx` - Error boundary
+- `not-found.tsx` - 404 page
+- `template.tsx` - Re-rendered layout
+
+## File Naming
+
+1. **Route files** (lowercase): `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`
+2. **Client components** (kebab-case): `*-client.tsx` suffix (e.g., `page-client.tsx`)
+3. **Private folders** (underscore): `_components/`, `_lib/`, `_types/`
+
+## Route Decisions
+
+**Create new route when:**
+- Distinct navigation/screen
+- Needs own URL path
+- Benefits from code splitting
+- Needs separate layout/metadata
+
+**Use route groups `(group)` when:**
+- Organizing without URL changes
+- Sharing layouts across routes
+
+**Keep in same route when:**
+- Modal/drawer
+- Tab/panel within page
+- No URL needed
+
+## Client vs Server Components
+
+**Server (default):** `page.tsx`, `layout.tsx` - Data fetching, static content, SEO
+
+**Client:** `*-client.tsx` with `'use client'` - Interactivity, hooks, browser APIs
+
+**Pattern:**
+```tsx
+// app/page.tsx (Server)
+import ClientComponent from './page-client';
+export default function Page() {
+  return <ClientComponent />;
+}
+
+// app/page-client.tsx (Client)
+'use client';
+export default function ClientComponent() {
+  // Interactive logic
+}
+```
+
+## Guidelines
+1. Start simple, extract routes as needed
+2. Use parentheses `(group)` for organization without URL changes
+3. Nested layouts create UI hierarchy
+4. Add `'use client'` only when necessary
+5. Each route auto code-splits
+6. Add metadata in `page.tsx` or `layout.tsx`
+7. Use `loading.tsx` and `error.tsx` for better UX
+
+## Complete Structure
+
+```
+app/
+├── layout.tsx                    # Root layout
+├── page.tsx                      # Home (/)
+├── page-client.tsx               # Client logic
+├── globals.css
+├── components/                   # Reusable
+│   ├── ui/
+│   ├── TextInput.tsx
+│   └── index.ts
+├── _components/                  # Page-specific
+│   └── DividendsInput.tsx
+├── about/
+│   ├── page.tsx                  # /about
+│   └── _components/
+├── dashboard/
+│   ├── layout.tsx
+│   ├── page.tsx                  # /dashboard
+│   ├── page-client.tsx
+│   ├── loading.tsx
+│   ├── error.tsx
+│   ├── _components/
+│   ├── _lib/
+│   └── settings/
+│       └── page.tsx              # /dashboard/settings
+└── (auth)/                       # Route group
+    ├── layout.tsx
+    ├── login/page.tsx            # /login
+    └── register/page.tsx         # /register
+```
+
+## Route Template
+
+```
+app/[route-name]/
+├── page.tsx              # Required
+├── page-client.tsx       # Optional
+├── layout.tsx            # Optional
+├── loading.tsx           # Optional
+├── error.tsx             # Optional
+├── not-found.tsx         # Optional
+├── _components/          # Optional
+└── _lib/                 # Optional
+```
