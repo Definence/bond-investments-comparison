@@ -1,0 +1,138 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Results } from '../_components/Results';
+import { ArrowLeft } from 'lucide-react';
+
+type Dividend = {
+  date: string;
+  amount: number;
+};
+
+type Bond = {
+  name: string;
+  price: number;
+  commission: number;
+  redemptionAmount: number;
+  redemptionDate: string;
+  dividends: Dividend[];
+};
+
+type ReturnCalculation = {
+  totalInvestment: number;
+  totalDividends: number;
+  reinvestIncome: number;
+  totalReceived: number;
+  profit: number;
+  totalReturn: number;
+  annualReturn: number;
+  yearsTotal: number;
+};
+
+export default function ResultsPage() {
+  const router = useRouter();
+  const [bonds, setBonds] = useState<Bond[]>([]);
+  const [purchaseDate, setPurchaseDate] = useState<string>('2025-10-31');
+  const [reinvestRate, setReinvestRate] = useState<number>(14);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedBonds = window.localStorage.getItem('bonds_list');
+      const savedPurchaseDate = window.localStorage.getItem('bonds_purchaseDate');
+      const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
+
+      if (!savedBonds || JSON.parse(savedBonds).length === 0) {
+        router.push('/');
+        return;
+      }
+
+      setBonds(savedBonds ? JSON.parse(savedBonds) : []);
+      setPurchaseDate(savedPurchaseDate || '2025-10-31');
+      setReinvestRate(savedReinvestRate ? parseFloat(savedReinvestRate) : 14);
+    }
+  }, [router]);
+
+  const daysBetween = (date1: Date, date2: Date): number => {
+    const diff = date2.getTime() - date1.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const calculateReturns = (bond: Bond, withReinvest: boolean): ReturnCalculation => {
+    const purchaseDateObj = new Date(purchaseDate);
+    const redemptionDateObj = new Date(bond.redemptionDate);
+    const totalInvestment = bond.price + bond.commission;
+    const daysTotal = daysBetween(purchaseDateObj, redemptionDateObj);
+    const yearsTotal = daysTotal / 365;
+
+    let totalDividends = 0;
+    let reinvestIncome = 0;
+
+    bond.dividends.forEach((div: Dividend) => {
+      const divDate = new Date(div.date);
+      totalDividends += div.amount;
+
+      if (withReinvest) {
+        const daysToRedemption = daysBetween(divDate, redemptionDateObj);
+        const yearsToRedemption = daysToRedemption / 365;
+        reinvestIncome += div.amount * (reinvestRate / 100) * yearsToRedemption;
+      }
+    });
+
+    const totalReceived = bond.redemptionAmount + totalDividends + reinvestIncome;
+    const profit = totalReceived - totalInvestment;
+    const totalReturn = (profit / totalInvestment) * 100;
+    const annualReturn = (totalReturn / yearsTotal);
+
+    return {
+      totalInvestment,
+      totalDividends,
+      reinvestIncome,
+      totalReceived,
+      profit,
+      totalReturn,
+      annualReturn,
+      yearsTotal
+    };
+  };
+
+  const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString('uk-UA', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  type BondResult = {
+    bond: Bond;
+    withoutReinvest: ReturnCalculation;
+    withReinvest: ReturnCalculation;
+  };
+
+  const results: BondResult[] = bonds.map((bond: Bond) => ({
+    bond,
+    withoutReinvest: calculateReturns(bond, false),
+    withReinvest: calculateReturns(bond, true)
+  }));
+
+  if (bonds.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <button
+          onClick={() => router.push('/')}
+          className="mb-6 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex items-center gap-2 text-gray-700 hover:text-indigo-600"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Назад до введення даних
+        </button>
+
+        <Results
+          results={results}
+          reinvestRate={reinvestRate}
+          formatNumber={formatNumber}
+          formatDate={formatDate}
+        />
+      </div>
+    </div>
+  );
+}

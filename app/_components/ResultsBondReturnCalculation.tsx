@@ -41,12 +41,12 @@ export const ResultsBondReturnCalculation: React.FC<ResultsBondReturnCalculation
         {isWithReinvest ? `З реінвестуванням (${reinvestRate}%)` : 'БЕЗ реінвестування'}
       </h3>
       <div className="space-y-3">
-        {showReinvestIncome && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-800">Дохід від реінвестування:</span>
-            <span className="font-semibold text-green-600">+{formatNumber(calculation.reinvestIncome)} грн</span>
-          </div>
-        )}
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-800">Дохід від реінвестування:</span>
+          <span className={`font-semibold ${isWithReinvest ? 'text-green-600' : 'text-gray-600'}`}>
+            {isWithReinvest && showReinvestIncome ? `+${formatNumber(calculation.reinvestIncome)}` : '0'} грн
+          </span>
+        </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-800">Всього отримаєте:</span>
           <span className="font-semibold text-gray-900">{formatNumber(calculation.totalReceived)} грн</span>

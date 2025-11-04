@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Settings } from './_components/Settings';
-import { Results } from './_components/Results';
 import { BondsList } from './_components/BondsList';
 import { BondForm } from './_components/BondForm';
 import { Header } from './_components/Header';
@@ -30,17 +29,6 @@ type BondInput = {
   dividends: Dividend[];
 };
 
-type ReturnCalculation = {
-  totalInvestment: number;
-  totalDividends: number;
-  reinvestIncome: number;
-  totalReceived: number;
-  profit: number;
-  totalReturn: number;
-  annualReturn: number;
-  yearsTotal: number;
-};
-
 const BondsCalculator = () => {
   const [purchaseDate, setPurchaseDate] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -65,8 +53,6 @@ const BondsCalculator = () => {
     }
     return [];
   });
-
-  const [showResults, setShowResults] = useState(false);
 
   // Зберігання в localStorage при зміні
   useEffect(() => {
@@ -151,70 +137,14 @@ const BondsCalculator = () => {
       setBonds([]);
       setPurchaseDate('2025-10-31');
       setReinvestRate(14);
-      setShowResults(false);
       window.localStorage.removeItem('bonds_list');
       window.localStorage.removeItem('bonds_purchaseDate');
       window.localStorage.removeItem('bonds_reinvestRate');
     }
   };
 
-  const daysBetween = (date1: Date, date2: Date): number => {
-    const diff = date2.getTime() - date1.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
-  };
-
-  const calculateReturns = (bond: Bond, withReinvest: boolean): ReturnCalculation => {
-    const purchaseDateObj = new Date(purchaseDate);
-    const redemptionDateObj = new Date(bond.redemptionDate);
-    const totalInvestment = bond.price + bond.commission;
-    const daysTotal = daysBetween(purchaseDateObj, redemptionDateObj);
-    const yearsTotal = daysTotal / 365;
-
-    let totalDividends = 0;
-    let reinvestIncome = 0;
-
-    bond.dividends.forEach((div: Dividend) => {
-      const divDate = new Date(div.date);
-      totalDividends += div.amount;
-
-      if (withReinvest) {
-        const daysToRedemption = daysBetween(divDate, redemptionDateObj);
-        const yearsToRedemption = daysToRedemption / 365;
-        reinvestIncome += div.amount * (reinvestRate / 100) * yearsToRedemption;
-      }
-    });
-
-    const totalReceived = bond.redemptionAmount + totalDividends + reinvestIncome;
-    const profit = totalReceived - totalInvestment;
-    const totalReturn = (profit / totalInvestment) * 100;
-    const annualReturn = (totalReturn / yearsTotal);
-
-    return {
-      totalInvestment,
-      totalDividends,
-      reinvestIncome,
-      totalReceived,
-      profit,
-      totalReturn,
-      annualReturn,
-      yearsTotal
-    };
-  };
-
   const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString('uk-UA', { year: 'numeric', month: 'short', day: 'numeric' });
-
-  type BondResult = {
-    bond: Bond;
-    withoutReinvest: ReturnCalculation;
-    withReinvest: ReturnCalculation;
-  };
-
-  const results: BondResult[] = bonds.map((bond: Bond) => ({
-    bond,
-    withoutReinvest: calculateReturns(bond, false),
-    withReinvest: calculateReturns(bond, true)
-  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -247,19 +177,9 @@ const BondsCalculator = () => {
           <BondsList
             bonds={bonds}
             onRemoveBond={removeBond}
-            onShowResults={() => setShowResults(true)}
             formatNumber={formatNumber}
           />
         </div>
-
-        {showResults && bonds.length > 0 && (
-          <Results
-            results={results}
-            reinvestRate={reinvestRate}
-            formatNumber={formatNumber}
-            formatDate={formatDate}
-          />
-        )}
       </div>
     </div>
   );
