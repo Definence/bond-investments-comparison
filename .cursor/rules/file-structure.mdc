@@ -35,6 +35,56 @@ alwaysApply: true
 4. TypeScript types required
 5. Separate reusable UI from business logic
 
+## Component Naming Convention
+
+**Feature Prefix Pattern:**
+When a component is part of a larger feature/component hierarchy, prefix all components in that hierarchy with the feature name. Build up the prefix as you go deeper in the component tree.
+
+**Apply prefix to:**
+- All components that are part of a feature's component tree
+- Components used directly by the parent feature component
+- Components nested within feature components (maintain the prefix chain)
+
+**Prefix rules:**
+1. Start with the feature name (e.g., `Results`)
+2. For nested components, append the parent component name (e.g., `ResultsBondCard`)
+3. Continue building the prefix for deeper nesting (e.g., `ResultsBondBasicParams`)
+
+**Don't prefix:**
+- Truly reusable UI primitives in `app/components/` (used across features)
+- Components that are standalone and not part of a feature hierarchy
+
+**Example:**
+```
+_components/
+├── Results.tsx                           # Main feature component
+├── ResultsSummary.tsx                    # ✓ Prefixed - used by Results
+├── ResultsBondCard.tsx                   # ✓ Prefixed - used by Results
+├── ResultsBestOptionCard.tsx             # ✓ Prefixed - used by ResultsSummary
+├── ResultsComparison.tsx                 # ✓ Prefixed - used by ResultsSummary
+├── ResultsBondBasicParams.tsx            # ✓ Prefixed - nested in ResultsBondCard
+├── ResultsBondDividends.tsx              # ✓ Prefixed - nested in ResultsBondCard
+└── ResultsBondReturnCalculation.tsx      # ✓ Prefixed - nested in ResultsBondCard
+```
+
+**Component Hierarchy:**
+```
+Results (main)
+├── ResultsBondCard
+│   ├── ResultsBondBasicParams
+│   ├── ResultsBondDividends
+│   └── ResultsBondReturnCalculation
+└── ResultsSummary
+    ├── ResultsBestOptionCard
+    └── ResultsComparison
+```
+
+**Benefits:**
+- Groups related files together in file listings (all Results components appear together)
+- Makes component ownership and hierarchy clear
+- Prevents naming conflicts across features
+- Improves discoverability and navigation
+
 ```
 app/
 ├── components/        # Reusable (across routes)
