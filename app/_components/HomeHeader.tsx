@@ -1,13 +1,13 @@
 import React from 'react';
 import { Calculator, Trash2, TestTube } from 'lucide-react';
 
-type HeaderProps = {
+type HomeHeaderProps = {
   onClearAllData: () => void;
   onLoadTestData: () => void;
   hasBonds: boolean;
 };
 
-export const Header: React.FC<HeaderProps> = ({
+export const HomeHeader: React.FC<HomeHeaderProps> = ({
   onClearAllData,
   onLoadTestData,
   hasBonds,

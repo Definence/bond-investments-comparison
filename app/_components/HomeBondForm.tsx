@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { TextInput } from '../components/TextInput';
 import { NumberInput } from '../components/NumberInput';
 import { DateInput } from '../components/DateInput';
-import { DividendsInput } from './DividendsInput';
+import { HomeDividendsInput } from './HomeDividendsInput';
 
 type Dividend = {
   date: string;
@@ -19,7 +19,7 @@ type BondInput = {
   dividends: Dividend[];
 };
 
-type BondFormProps = {
+type HomeBondFormProps = {
   currentBond: BondInput;
   setCurrentBond: (bond: BondInput) => void;
   currentDividend: {
@@ -34,7 +34,7 @@ type BondFormProps = {
   formatNumber: (num: number) => string;
 };
 
-export const BondForm: React.FC<BondFormProps> = ({
+export const HomeBondForm: React.FC<HomeBondFormProps> = ({
   currentBond,
   setCurrentBond,
   currentDividend,
@@ -84,7 +84,7 @@ export const BondForm: React.FC<BondFormProps> = ({
         />
       </div>
 
-      <DividendsInput
+      <HomeDividendsInput
         currentDividend={currentDividend}
         setCurrentDividend={setCurrentDividend}
         dividends={currentBond.dividends}

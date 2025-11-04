@@ -2,14 +2,14 @@ import React from 'react';
 import { DateInput } from '../components/DateInput';
 import { NumberInput } from '../components/NumberInput';
 
-type SettingsProps = {
+type HomeSettingsProps = {
   purchaseDate: string;
   onPurchaseDateChange: (value: string) => void;
   reinvestRate: number;
   onReinvestRateChange: (value: number) => void;
 };
 
-export const Settings: React.FC<SettingsProps> = ({
+export const HomeSettings: React.FC<HomeSettingsProps> = ({
   purchaseDate,
   onPurchaseDateChange,
   reinvestRate,

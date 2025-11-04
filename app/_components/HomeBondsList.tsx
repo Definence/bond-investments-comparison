@@ -18,13 +18,13 @@ type Bond = {
   dividends: Dividend[];
 };
 
-type BondsListProps = {
+type HomeBondsListProps = {
   bonds: Bond[];
   onRemoveBond: (index: number) => void;
   formatNumber: (num: number) => string;
 };
 
-export const BondsList: React.FC<BondsListProps> = ({
+export const HomeBondsList: React.FC<HomeBondsListProps> = ({
   bonds,
   onRemoveBond,
   formatNumber,

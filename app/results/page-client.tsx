@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Results } from '../_components/Results';
+import { Results } from './_components/Results';
 import { ArrowLeft } from 'lucide-react';
 
 type Dividend = {

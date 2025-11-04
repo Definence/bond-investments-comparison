@@ -8,7 +8,7 @@ type Dividend = {
   amount: number;
 };
 
-type DividendsInputProps = {
+type HomeDividendsInputProps = {
   currentDividend: {
     date: string;
     amount: string;
@@ -21,7 +21,7 @@ type DividendsInputProps = {
   formatNumber: (num: number) => string;
 };
 
-export const DividendsInput: React.FC<DividendsInputProps> = ({
+export const HomeDividendsInput: React.FC<HomeDividendsInputProps> = ({
   currentDividend,
   setCurrentDividend,
   dividends,

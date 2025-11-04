@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Settings } from './_components/Settings';
-import { BondsList } from './_components/BondsList';
-import { BondForm } from './_components/BondForm';
-import { Header } from './_components/Header';
+import { HomeSettings } from './_components/HomeSettings';
+import { HomeBondsList } from './_components/HomeBondsList';
+import { HomeBondForm } from './_components/HomeBondForm';
+import { HomeHeader } from './_components/HomeHeader';
 
 type Dividend = {
   date: string;
@@ -175,20 +175,20 @@ const BondsCalculator = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <Header
+          <HomeHeader
             onClearAllData={clearAllData}
             onLoadTestData={loadTestData}
             hasBonds={bonds.length > 0}
           />
 
-          <Settings
+          <HomeSettings
             purchaseDate={purchaseDate}
             onPurchaseDateChange={setPurchaseDate}
             reinvestRate={reinvestRate}
             onReinvestRateChange={setReinvestRate}
           />
 
-          <BondForm
+          <HomeBondForm
             currentBond={currentBond}
             setCurrentBond={setCurrentBond}
             currentDividend={currentDividend}
@@ -200,7 +200,7 @@ const BondsCalculator = () => {
             formatNumber={formatNumber}
           />
 
-          <BondsList
+          <HomeBondsList
             bonds={bonds}
             onRemoveBond={removeBond}
             formatNumber={formatNumber}
