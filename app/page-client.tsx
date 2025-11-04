@@ -143,6 +143,31 @@ const BondsCalculator = () => {
     }
   };
 
+  const loadTestData = () => {
+    const testBonds: Bond[] = [
+      {
+        name: '16% моно',
+        price: 10822,
+        commission: 0,
+        redemptionAmount: 10817.5,
+        redemptionDate: '2026-11-18',
+        dividends: [
+          { date: '2025-11-19', amount: 817.5 },
+          { date: '2026-05-20', amount: 817.5 }
+        ]
+      },
+      {
+        name: '16% дія',
+        price: 10739.4,
+        commission: 0,
+        redemptionAmount: 12450,
+        redemptionDate: '2026-11-18',
+        dividends: []
+      }
+    ];
+    setBonds(testBonds);
+  };
+
   const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString('uk-UA', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -152,6 +177,7 @@ const BondsCalculator = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <Header
             onClearAllData={clearAllData}
+            onLoadTestData={loadTestData}
             hasBonds={bonds.length > 0}
           />
 

@@ -48,6 +48,9 @@ export const Results: React.FC<ResultsProps> = ({
 }) => {
   return (
     <>
+      <div className="mb-8">
+        <ResultsSummary results={results} formatNumber={formatNumber} />
+      </div>
       {results.map((result, idx) => (
         <ResultsBondCard
           key={idx}
@@ -59,7 +62,6 @@ export const Results: React.FC<ResultsProps> = ({
           formatDate={formatDate}
         />
       ))}
-      <ResultsSummary results={results} formatNumber={formatNumber} />
     </>
   );
 };
