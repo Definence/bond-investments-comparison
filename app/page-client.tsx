@@ -30,48 +30,49 @@ type BondInput = {
 };
 
 const BondsCalculator = () => {
-  const [purchaseDate, setPurchaseDate] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = window.localStorage.getItem('bonds_purchaseDate');
-      return saved || '2025-10-31';
-    }
-    return '2025-10-31';
-  });
+  // Initialize with default values to ensure server/client match
+  const [purchaseDate, setPurchaseDate] = useState<string>('2025-10-31');
+  const [reinvestRate, setReinvestRate] = useState<number>(14);
+  const [bonds, setBonds] = useState<Bond[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const [reinvestRate, setReinvestRate] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = window.localStorage.getItem('bonds_reinvestRate');
-      return saved ? parseFloat(saved) : 14;
-    }
-    return 14;
-  });
-
-  const [bonds, setBonds] = useState<Bond[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = window.localStorage.getItem('bonds_list');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-
-  // Зберігання в localStorage при зміні
+  // Load from localStorage after hydration
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setIsHydrated(true);
+    const savedPurchaseDate = window.localStorage.getItem('bonds_purchaseDate');
+    if (savedPurchaseDate) {
+      setPurchaseDate(savedPurchaseDate);
+    }
+
+    const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
+    if (savedReinvestRate) {
+      setReinvestRate(parseFloat(savedReinvestRate));
+    }
+
+    const savedBonds = window.localStorage.getItem('bonds_list');
+    if (savedBonds) {
+      setBonds(JSON.parse(savedBonds));
+    }
+  }, []);
+
+  // Зберігання в localStorage при зміні (тільки після гідратації)
+  useEffect(() => {
+    if (isHydrated) {
       window.localStorage.setItem('bonds_purchaseDate', purchaseDate);
     }
-  }, [purchaseDate]);
+  }, [purchaseDate, isHydrated]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isHydrated) {
       window.localStorage.setItem('bonds_reinvestRate', reinvestRate.toString());
     }
-  }, [reinvestRate]);
+  }, [reinvestRate, isHydrated]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isHydrated) {
       window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
     }
-  }, [bonds]);
+  }, [bonds, isHydrated]);
 
   const [currentBond, setCurrentBond] = useState<BondInput>({
     name: '',
