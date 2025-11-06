@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, Trash2 } from 'lucide-react';
+import { TrendingUp, Trash2, Edit } from 'lucide-react';
 
 type Dividend = {
   date: string;
@@ -48,12 +48,22 @@ export const HomeBondsList: React.FC<HomeBondsListProps> = ({
                 Дивідендів: {bond.dividends.length}
               </div>
             </div>
-            <button
-              onClick={() => onRemoveBond(index)}
-              className="text-red-600 hover:text-red-800 transition-colors"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push(`/bonds/edit/${index}`)}
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+                title="Редагувати"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => onRemoveBond(index)}
+                className="text-red-600 hover:text-red-800 transition-colors"
+                title="Видалити"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
