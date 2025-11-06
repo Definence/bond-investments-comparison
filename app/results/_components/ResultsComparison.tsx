@@ -35,6 +35,11 @@ export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results })
     (a, b) => b.withReinvest.annualReturn - a.withReinvest.annualReturn
   );
 
+  // Calculate the maximum annual return for proper scaling
+  const maxAnnualReturn = sortedResults.length > 0
+    ? Math.max(...sortedResults.map(r => r.withReinvest.annualReturn))
+    : 20; // Fallback to 20 if no results
+
   return (
     <div className="mt-6 bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur">
       <h3 className="font-semibold mb-2 text-gray-600">Порівняння річної дохідності (з реінвестуванням):</h3>
@@ -45,7 +50,7 @@ export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results })
             <div className="flex-1 bg-white bg-opacity-30 rounded-full h-6 overflow-hidden">
               <div
                 className="bg-yellow-300 h-full flex items-center justify-end pr-2"
-                style={{ width: `${(r.withReinvest.annualReturn / 20) * 100}%` }}
+                style={{ width: `${Math.min((r.withReinvest.annualReturn / maxAnnualReturn) * 100, 100)}%` }}
               >
                 <span className="text-xs font-bold text-gray-800">
                   {r.withReinvest.annualReturn.toFixed(2)}%
