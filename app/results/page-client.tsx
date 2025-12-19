@@ -128,7 +128,7 @@ export default function ResultsPage() {
           className="mb-6 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex items-center gap-2 text-gray-700 hover:text-indigo-600"
         >
           <ArrowLeft className="w-5 h-5" />
-          Назад до введення даних
+          Назад до основної сторінки
         </button>
 
         <Results

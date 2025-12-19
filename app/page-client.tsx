@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { HomeSettings } from './_components/HomeSettings';
 import { HomeBondsList } from './_components/HomeBondsList';
-import { HomeBondForm } from './_components/HomeBondForm';
 import { HomeHeader } from './_components/HomeHeader';
+import { HomeActionButtons } from './_components/HomeActionButtons';
 
 type Dividend = {
   date: string;
@@ -16,17 +17,6 @@ type Bond = {
   price: number;
   commission: number;
   redemptionAmount: number;
-  redemptionDate: string;
-  dividends: Dividend[];
-  isAlreadyPurchased?: boolean;
-  actualPurchaseDate?: string;
-};
-
-type BondInput = {
-  name: string;
-  price: string;
-  commission: string;
-  redemptionAmount: string;
   redemptionDate: string;
   dividends: Dividend[];
   isAlreadyPurchased?: boolean;
@@ -67,66 +57,7 @@ const BondsCalculator = () => {
     }
   }, [bonds, isHydrated]);
 
-  const [currentBond, setCurrentBond] = useState<BondInput>({
-    name: '',
-    price: '',
-    commission: '',
-    redemptionAmount: '',
-    redemptionDate: '',
-    dividends: [],
-    isAlreadyPurchased: false,
-    actualPurchaseDate: undefined
-  });
-
-  const [currentDividend, setCurrentDividend] = useState({
-    date: '',
-    amount: ''
-  });
-
-  const addDividend = () => {
-    if (currentDividend.date && currentDividend.amount) {
-      setCurrentBond({
-        ...currentBond,
-        dividends: [...currentBond.dividends, {
-          date: currentDividend.date,
-          amount: parseFloat(currentDividend.amount)
-        }]
-      });
-      setCurrentDividend(prev => ({ ...prev, date: '' }));
-    }
-  };
-
-  const removeDividend = (index: number) => {
-    setCurrentBond({
-      ...currentBond,
-      dividends: currentBond.dividends.filter((_, i) => i !== index)
-    });
-  };
-
-  const addBond = () => {
-    if (currentBond.name && currentBond.price && currentBond.redemptionDate && currentBond.redemptionAmount) {
-      setBonds([...bonds, {
-        name: currentBond.name,
-        price: parseFloat(currentBond.price),
-        commission: parseFloat(currentBond.commission) || 0,
-        redemptionAmount: parseFloat(currentBond.redemptionAmount),
-        redemptionDate: currentBond.redemptionDate,
-        dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-        isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
-        actualPurchaseDate: currentBond.actualPurchaseDate
-      }]);
-      setCurrentBond({
-        name: '',
-        price: '',
-        commission: '',
-        redemptionAmount: '',
-        redemptionDate: '',
-        dividends: [],
-        isAlreadyPurchased: false,
-        actualPurchaseDate: undefined
-      });
-    }
-  };
+  const router = useRouter();
 
   const removeBond = (index: number) => {
     setBonds(bonds.filter((_, i) => i !== index));
@@ -167,11 +98,10 @@ const BondsCalculator = () => {
   };
 
   const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString('uk-UA', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <HomeHeader
             onClearAllData={clearAllData}
@@ -184,23 +114,13 @@ const BondsCalculator = () => {
             onReinvestRateChange={setReinvestRate}
           />
 
-          <HomeBondForm
-            currentBond={currentBond}
-            setCurrentBond={setCurrentBond}
-            currentDividend={currentDividend}
-            setCurrentDividend={setCurrentDividend}
-            onAddDividend={addDividend}
-            onRemoveDividend={removeDividend}
-            onAddBond={addBond}
-            formatDate={formatDate}
-            formatNumber={formatNumber}
-          />
-
           <HomeBondsList
             bonds={bonds}
             onRemoveBond={removeBond}
             formatNumber={formatNumber}
           />
+
+          <HomeActionButtons />
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 
 type Dividend = {
   date: string;
@@ -67,14 +67,6 @@ export const HomeBondsList: React.FC<HomeBondsListProps> = ({
           </div>
         ))}
       </div>
-
-      <button
-        onClick={() => router.push('/results')}
-        className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
-      >
-        <TrendingUp className="w-5 h-5" />
-        Розрахувати та порівняти
-      </button>
     </div>
   );
 };
