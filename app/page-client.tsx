@@ -5,6 +5,7 @@ import { HomeSettings } from './_components/HomeSettings';
 import { HomeBondsList } from './_components/HomeBondsList';
 import { HomeBondForm } from './_components/HomeBondForm';
 import { HomeHeader } from './_components/HomeHeader';
+import { getCurrentDate } from './lib/date';
 
 type Dividend = {
   date: string;
@@ -31,7 +32,7 @@ type BondInput = {
 
 const BondsCalculator = () => {
   // Initialize with default values to ensure server/client match
-  const [purchaseDate, setPurchaseDate] = useState<string>('2025-10-31');
+  const [purchaseDate, setPurchaseDate] = useState<string>(getCurrentDate());
   const [reinvestRate, setReinvestRate] = useState<number>(14);
   const [bonds, setBonds] = useState<Bond[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -39,10 +40,6 @@ const BondsCalculator = () => {
   // Load from localStorage after hydration
   useEffect(() => {
     setIsHydrated(true);
-    const savedPurchaseDate = window.localStorage.getItem('bonds_purchaseDate');
-    if (savedPurchaseDate) {
-      setPurchaseDate(savedPurchaseDate);
-    }
 
     const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
     if (savedReinvestRate) {
@@ -56,12 +53,6 @@ const BondsCalculator = () => {
   }, []);
 
   // Зберігання в localStorage при зміні (тільки після гідратації)
-  useEffect(() => {
-    if (isHydrated) {
-      window.localStorage.setItem('bonds_purchaseDate', purchaseDate);
-    }
-  }, [purchaseDate, isHydrated]);
-
   useEffect(() => {
     if (isHydrated) {
       window.localStorage.setItem('bonds_reinvestRate', reinvestRate.toString());
@@ -136,10 +127,9 @@ const BondsCalculator = () => {
   const clearAllData = () => {
     if (typeof window !== 'undefined' && window.confirm('Видалити всі збережені дані? Ця дія незворотна.')) {
       setBonds([]);
-      setPurchaseDate('2025-10-31');
+      setPurchaseDate(getCurrentDate());
       setReinvestRate(14);
       window.localStorage.removeItem('bonds_list');
-      window.localStorage.removeItem('bonds_purchaseDate');
       window.localStorage.removeItem('bonds_reinvestRate');
     }
   };
