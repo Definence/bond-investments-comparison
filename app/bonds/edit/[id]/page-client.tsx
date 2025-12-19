@@ -91,7 +91,7 @@ export default function EditBondPage() {
           amount: parseFloat(currentDividend.amount)
         }]
       });
-      setCurrentDividend({ date: '', amount: '' });
+      setCurrentDividend(prev => ({ ...prev, date: '' }));
     }
   };
 
@@ -169,12 +169,10 @@ export default function EditBondPage() {
                 placeholder="10822"
                 onChangeAsString={true}
               />
-              <NumberInput
-                label="Комісія (грн, необов'язково)"
-                value={currentBond.commission}
-                onChange={(value: number | string) => setCurrentBond({...currentBond, commission: value as string})}
-                placeholder="0"
-                onChangeAsString={true}
+              <DateInput
+                label="Дата погашення"
+                value={currentBond.redemptionDate}
+                onChange={(value: string) => setCurrentBond({...currentBond, redemptionDate: value})}
               />
               <NumberInput
                 label="Сума погашення (грн)"
@@ -183,10 +181,12 @@ export default function EditBondPage() {
                 placeholder="10817.5"
                 onChangeAsString={true}
               />
-              <DateInput
-                label="Дата погашення"
-                value={currentBond.redemptionDate}
-                onChange={(value: string) => setCurrentBond({...currentBond, redemptionDate: value})}
+              <NumberInput
+                label="Комісія (грн, необов'язково)"
+                value={currentBond.commission}
+                onChange={(value: number | string) => setCurrentBond({...currentBond, commission: value as string})}
+                placeholder="0"
+                onChangeAsString={true}
               />
             </div>
 
