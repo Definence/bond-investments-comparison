@@ -3,12 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
-import { TextInput } from '@/app/components/TextInput';
-import { NumberInput } from '@/app/components/NumberInput';
-import { DateInput } from '@/app/components/DateInput';
 import { BackButton } from '@/app/components/BackButton';
-import { BondDividendsInput } from '../../_components/BondDividendsInput';
-import { getCurrentDate } from '@/app/lib/date';
+import { BondForm } from '../../_components/BondForm';
 
 type Dividend = {
   date: string;
@@ -158,96 +154,36 @@ export default function EditBondPage() {
         <BackButton />
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Редагувати облігацію</h1>
-
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <TextInput
-                label="Назва"
-                value={currentBond.name}
-                onChange={(value: string) => setCurrentBond({...currentBond, name: value})}
-                placeholder="Наприклад: 16% моно"
-              />
-              <NumberInput
-                label="Ціна покупки (грн)"
-                value={currentBond.price}
-                onChange={(value: number | string) => setCurrentBond({...currentBond, price: value as string})}
-                placeholder="10822"
-                onChangeAsString={true}
-              />
-              <DateInput
-                label="Дата погашення"
-                value={currentBond.redemptionDate}
-                onChange={(value: string) => setCurrentBond({...currentBond, redemptionDate: value})}
-              />
-              <NumberInput
-                label="Сума погашення (грн)"
-                value={currentBond.redemptionAmount}
-                onChange={(value: number | string) => setCurrentBond({...currentBond, redemptionAmount: value as string})}
-                placeholder="10817.5"
-                onChangeAsString={true}
-              />
-              <NumberInput
-                label="Комісія (грн, необов'язково)"
-                value={currentBond.commission}
-                onChange={(value: number | string) => setCurrentBond({...currentBond, commission: value as string})}
-                placeholder="0"
-                onChangeAsString={true}
-              />
-              {currentBond.isAlreadyPurchased && (
-                <DateInput
-                  label="Дата покупки"
-                  value={currentBond.actualPurchaseDate || getCurrentDate()}
-                  onChange={(value: string) => setCurrentBond({...currentBond, actualPurchaseDate: value})}
-                />
-              )}
-
-              <div className="md:col-span-2">
-                <label className="flex items-center gap-2 cursor-pointer mb-3">
-                  <input
-                    type="checkbox"
-                    checked={currentBond.isAlreadyPurchased || false}
-                    onChange={(e) => setCurrentBond({
-                      ...currentBond,
-                      isAlreadyPurchased: e.target.checked,
-                      actualPurchaseDate: e.target.checked ? (currentBond.actualPurchaseDate || getCurrentDate()) : undefined
-                    })}
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    Порахувати дохідність вже куплених ЦП
-                  </span>
-                </label>
+          <BondForm
+            currentBond={currentBond}
+            setCurrentBond={setCurrentBond}
+            currentDividend={currentDividend}
+            setCurrentDividend={setCurrentDividend}
+            onAddDividend={addDividend}
+            onRemoveDividend={removeDividend}
+            onAddBond={saveBond}
+            formatDate={formatDate}
+            formatNumber={formatNumber}
+            title="Редагувати облігацію"
+            renderActions={() => (
+              <div className="flex gap-4">
+                <button
+                  onClick={() => router.push('/')}
+                  className="flex-1 px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold flex items-center justify-center gap-2 text-gray-700"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  Назад
+                </button>
+                <button
+                  onClick={saveBond}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <Save className="w-5 h-5" />
+                  Зберегти зміни
+                </button>
               </div>
-            </div>
-
-            <BondDividendsInput
-              currentDividend={currentDividend}
-              setCurrentDividend={setCurrentDividend}
-              dividends={currentBond.dividends}
-              onAddDividend={addDividend}
-              onRemoveDividend={removeDividend}
-              formatDate={formatDate}
-              formatNumber={formatNumber}
-            />
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => router.push('/')}
-                className="flex-1 px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold flex items-center justify-center gap-2 text-gray-700"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Назад
-              </button>
-              <button
-                onClick={saveBond}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-semibold flex items-center justify-center gap-2"
-              >
-                <Save className="w-5 h-5" />
-                Зберегти зміни
-              </button>
-            </div>
-          </div>
+            )}
+          />
         </div>
       </div>
     </div>
