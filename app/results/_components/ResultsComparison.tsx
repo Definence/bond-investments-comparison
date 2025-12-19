@@ -29,9 +29,10 @@ type BondResult = {
 
 type ResultsComparisonProps = {
   results: BondResult[];
+  formatDate: (dateStr: string) => string;
 };
 
-export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results }) => {
+export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results, formatDate }) => {
   const sortedResultsWithReinvest = [...results].sort(
     (a, b) => b.withReinvest.annualReturn - a.withReinvest.annualReturn
   );
@@ -56,12 +57,14 @@ export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results })
         sortedResults={sortedResultsWithReinvest}
         maxAnnualReturn={maxAnnualReturnWithReinvest}
         getAnnualReturn={(r) => r.withReinvest.annualReturn}
+        formatDate={formatDate}
       />
       <ResultsComparisonBlock
         title="Порівняння річної дохідності (без реінвестування):"
         sortedResults={sortedResultsWithoutReinvest}
         maxAnnualReturn={maxAnnualReturnWithoutReinvest}
         getAnnualReturn={(r) => r.withoutReinvest.annualReturn}
+        formatDate={formatDate}
       />
     </>
   );

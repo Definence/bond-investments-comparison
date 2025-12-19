@@ -31,9 +31,10 @@ type BondResult = {
 type ResultsSummaryProps = {
   results: BondResult[];
   formatNumber: (num: number) => string;
+  formatDate: (dateStr: string) => string;
 };
 
-export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, formatNumber }) => {
+export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, formatNumber, formatDate }) => {
   const bestWithoutReinvest = results.reduce((prev, curr) =>
     curr.withoutReinvest.annualReturn > prev.withoutReinvest.annualReturn ? curr : prev
   );
@@ -68,7 +69,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, formatN
         </div>
       </div>
 
-      <ResultsComparison results={results} />
+      <ResultsComparison results={results} formatDate={formatDate} />
     </div>
   );
 };
