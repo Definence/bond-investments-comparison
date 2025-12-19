@@ -1,4 +1,5 @@
 import React from 'react';
+import { ResultsComparisonBlock } from './ResultsComparisonBlock';
 
 type Bond = {
   name: string;
@@ -31,35 +32,37 @@ type ResultsComparisonProps = {
 };
 
 export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results }) => {
-  const sortedResults = [...results].sort(
+  const sortedResultsWithReinvest = [...results].sort(
     (a, b) => b.withReinvest.annualReturn - a.withReinvest.annualReturn
   );
 
+  const sortedResultsWithoutReinvest = [...results].sort(
+    (a, b) => b.withoutReinvest.annualReturn - a.withoutReinvest.annualReturn
+  );
+
   // Calculate the maximum annual return for proper scaling
-  const maxAnnualReturn = sortedResults.length > 0
-    ? Math.max(...sortedResults.map(r => r.withReinvest.annualReturn))
+  const maxAnnualReturnWithReinvest = sortedResultsWithReinvest.length > 0
+    ? Math.max(...sortedResultsWithReinvest.map(r => r.withReinvest.annualReturn))
+    : 20; // Fallback to 20 if no results
+
+  const maxAnnualReturnWithoutReinvest = sortedResultsWithoutReinvest.length > 0
+    ? Math.max(...sortedResultsWithoutReinvest.map(r => r.withoutReinvest.annualReturn))
     : 20; // Fallback to 20 if no results
 
   return (
-    <div className="mt-6 bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur">
-      <h3 className="font-semibold mb-2 text-gray-600">Порівняння річної дохідності (з реінвестуванням):</h3>
-      <div className="space-y-2">
-        {sortedResults.map((r, idx) => (
-          <div key={idx} className="flex items-center gap-3">
-            <span className="font-medium w-32 text-gray-600">{r.bond.name}:</span>
-            <div className="flex-1 bg-white bg-opacity-30 rounded-full h-6 overflow-hidden">
-              <div
-                className="bg-yellow-300 h-full flex items-center justify-end pr-2"
-                style={{ width: `${Math.min((r.withReinvest.annualReturn / maxAnnualReturn) * 100, 100)}%` }}
-              >
-                <span className="text-xs font-bold text-gray-800">
-                  {r.withReinvest.annualReturn.toFixed(2)}%
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <>
+      <ResultsComparisonBlock
+        title="Порівняння річної дохідності (з реінвестуванням):"
+        sortedResults={sortedResultsWithReinvest}
+        maxAnnualReturn={maxAnnualReturnWithReinvest}
+        getAnnualReturn={(r) => r.withReinvest.annualReturn}
+      />
+      <ResultsComparisonBlock
+        title="Порівняння річної дохідності (без реінвестування):"
+        sortedResults={sortedResultsWithoutReinvest}
+        maxAnnualReturn={maxAnnualReturnWithoutReinvest}
+        getAnnualReturn={(r) => r.withoutReinvest.annualReturn}
+      />
+    </>
   );
 };
