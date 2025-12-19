@@ -63,12 +63,10 @@ export const HomeBondForm: React.FC<HomeBondFormProps> = ({
           placeholder="10822"
           onChangeAsString={true}
         />
-        <NumberInput
-          label="Комісія (грн, необов'язково)"
-          value={currentBond.commission}
-          onChange={(value) => setCurrentBond({...currentBond, commission: value as string})}
-          placeholder="0"
-          onChangeAsString={true}
+        <DateInput
+          label="Дата погашення"
+          value={currentBond.redemptionDate}
+          onChange={(value) => setCurrentBond({...currentBond, redemptionDate: value})}
         />
         <NumberInput
           label="Сума погашення (грн)"
@@ -77,10 +75,12 @@ export const HomeBondForm: React.FC<HomeBondFormProps> = ({
           placeholder="10817.5"
           onChangeAsString={true}
         />
-        <DateInput
-          label="Дата погашення"
-          value={currentBond.redemptionDate}
-          onChange={(value) => setCurrentBond({...currentBond, redemptionDate: value})}
+        <NumberInput
+          label="Комісія (грн, необов'язково)"
+          value={currentBond.commission}
+          onChange={(value) => setCurrentBond({...currentBond, commission: value as string})}
+          placeholder="0"
+          onChangeAsString={true}
         />
       </div>
 
