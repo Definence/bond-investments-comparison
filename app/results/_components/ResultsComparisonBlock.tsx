@@ -48,14 +48,13 @@ export const ResultsComparisonBlock: React.FC<ResultsComparisonBlockProps> = ({
         {sortedResults.map((r, idx) => {
           const annualReturn = getAnnualReturn(r);
           return (
-            <div key={idx} className="flex items-center gap-3">
-              <div className="font-medium w-48 text-gray-600">
-                <div>{r.bond.name}</div>
-                <div className="text-xs text-gray-500">{formatDate(r.bond.redemptionDate)}</div>
-              </div>
-              <div className="flex-1 bg-white bg-opacity-30 rounded-full h-6 overflow-hidden">
+            <div key={idx} className="flex items-center justify-between gap-3">
+              <span className="font-medium w-56 text-gray-600 text-sm">
+                <span className="text-gray-500">{formatDate(r.bond.redemptionDate)}</span> {r.bond.name}
+              </span>
+              <div className="flex-1 max-w-3xl bg-white bg-opacity-30 rounded-full h-5 overflow-hidden flex justify-end">
                 <div
-                  className="bg-yellow-300 h-full flex items-center justify-end pr-2"
+                  className="bg-yellow-300 h-full flex items-center justify-start pl-2"
                   style={{ width: `${Math.min((annualReturn / maxAnnualReturn) * 100, 100)}%` }}
                 >
                   <span className="text-xs font-bold text-gray-800">
