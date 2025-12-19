@@ -1,14 +1,14 @@
 import React, { useRef } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { DateInput } from '../components/DateInput';
-import { NumberInput } from '../components/NumberInput';
+import { DateInput } from '@/app/components/DateInput';
+import { NumberInput } from '@/app/components/NumberInput';
 
 type Dividend = {
   date: string;
   amount: number;
 };
 
-type HomeDividendsInputProps = {
+type BondDividendsInputProps = {
   currentDividend: {
     date: string;
     amount: string;
@@ -21,7 +21,7 @@ type HomeDividendsInputProps = {
   formatNumber: (num: number) => string;
 };
 
-export const HomeDividendsInput: React.FC<HomeDividendsInputProps> = ({
+export const BondDividendsInput: React.FC<BondDividendsInputProps> = ({
   currentDividend,
   setCurrentDividend,
   dividends,
@@ -75,20 +75,28 @@ export const HomeDividendsInput: React.FC<HomeDividendsInputProps> = ({
 
       {dividends.length > 0 && (
         <div className="space-y-2">
-          {dividends.map((div, index) => (
-            <div key={index} className="flex items-center justify-between bg-purple-50 p-3 rounded-lg">
-              <div className="flex gap-4">
-                <span className="font-medium text-gray-700">{formatDate(div.date)}</span>
-                <span className="text-purple-600 font-semibold">{formatNumber(div.amount)} грн</span>
-              </div>
-              <button
-                onClick={() => onRemoveDividend(index)}
-                className="text-red-600 hover:text-red-800 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+          {dividends
+            .slice()
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .map((div) => {
+              const originalIndex = dividends.findIndex(
+                (d) => d.date === div.date && d.amount === div.amount
+              );
+              return (
+                <div key={`${div.date}-${div.amount}`} className="flex items-center justify-between bg-purple-50 p-3 rounded-lg">
+                  <div className="flex gap-4">
+                    <span className="font-medium text-gray-700">{formatDate(div.date)}</span>
+                    <span className="text-purple-600 font-semibold">{formatNumber(div.amount)} грн</span>
+                  </div>
+                  <button
+                    onClick={() => onRemoveDividend(originalIndex)}
+                    className="text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
         </div>
       )}
     </div>

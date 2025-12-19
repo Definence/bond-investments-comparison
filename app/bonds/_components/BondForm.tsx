@@ -1,10 +1,10 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
-import { TextInput } from '../components/TextInput';
-import { NumberInput } from '../components/NumberInput';
-import { DateInput } from '../components/DateInput';
-import { HomeDividendsInput } from './HomeDividendsInput';
-import { getCurrentDate } from '../lib/date';
+import { TextInput } from '@/app/components/TextInput';
+import { NumberInput } from '@/app/components/NumberInput';
+import { DateInput } from '@/app/components/DateInput';
+import { BondDividendsInput } from './BondDividendsInput';
+import { getCurrentDate } from '@/app/lib/date';
 
 type Dividend = {
   date: string;
@@ -22,7 +22,7 @@ type BondInput = {
   actualPurchaseDate?: string;
 };
 
-type HomeBondFormProps = {
+type BondFormProps = {
   currentBond: BondInput;
   setCurrentBond: (bond: BondInput) => void;
   currentDividend: {
@@ -37,7 +37,7 @@ type HomeBondFormProps = {
   formatNumber: (num: number) => string;
 };
 
-export const HomeBondForm: React.FC<HomeBondFormProps> = ({
+export const BondForm: React.FC<BondFormProps> = ({
   currentBond,
   setCurrentBond,
   currentDividend,
@@ -112,7 +112,7 @@ export const HomeBondForm: React.FC<HomeBondFormProps> = ({
         </label>
       </div>
 
-      <HomeDividendsInput
+      <BondDividendsInput
         currentDividend={currentDividend}
         setCurrentDividend={setCurrentDividend}
         dividends={currentBond.dividends}

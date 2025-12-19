@@ -6,7 +6,8 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { TextInput } from '@/app/components/TextInput';
 import { NumberInput } from '@/app/components/NumberInput';
 import { DateInput } from '@/app/components/DateInput';
-import { HomeDividendsInput } from '@/app/_components/HomeDividendsInput';
+import { BackButton } from '@/app/components/BackButton';
+import { BondDividendsInput } from '../../_components/BondDividendsInput';
 import { getCurrentDate } from '@/app/lib/date';
 
 type Dividend = {
@@ -154,13 +155,7 @@ export default function EditBondPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => router.push('/')}
-          className="mb-6 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex items-center gap-2 text-gray-700 hover:text-indigo-600"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Назад
-        </button>
+        <BackButton />
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Редагувати облігацію</h1>
@@ -226,7 +221,7 @@ export default function EditBondPage() {
               </div>
             </div>
 
-            <HomeDividendsInput
+            <BondDividendsInput
               currentDividend={currentDividend}
               setCurrentDividend={setCurrentDividend}
               dividends={currentBond.dividends}

@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus } from 'lucide-react';
-import { HomeBondForm } from '@/app/_components/HomeBondForm';
+import { Plus } from 'lucide-react';
+import { BondForm } from '../_components/BondForm';
+import { BackButton } from '@/app/components/BackButton';
 
 type Dividend = {
   date: string;
@@ -121,16 +122,10 @@ export default function NewBondPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => router.push('/')}
-          className="mb-6 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex items-center gap-2 text-gray-700 hover:text-indigo-600"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Назад
-        </button>
+        <BackButton />
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <HomeBondForm
+          <BondForm
             currentBond={currentBond}
             setCurrentBond={setCurrentBond}
             currentDividend={currentDividend}

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Results } from './_components/Results';
-import { ArrowLeft } from 'lucide-react';
 import { getCurrentDate } from '../lib/date';
+import { BackButton } from '@/app/components/BackButton';
 
 type Dividend = {
   date: string;
@@ -123,13 +123,7 @@ export default function ResultsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <button
-          onClick={() => router.push('/')}
-          className="mb-6 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex items-center gap-2 text-gray-700 hover:text-indigo-600"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Назад до основної сторінки
-        </button>
+        <BackButton text="Назад до основної сторінки" />
 
         <Results
           results={results}
