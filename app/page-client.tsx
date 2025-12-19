@@ -97,7 +97,7 @@ const BondsCalculator = () => {
           amount: parseFloat(currentDividend.amount)
         }]
       });
-      setCurrentDividend({ date: '', amount: '' });
+      setCurrentDividend(prev => ({ ...prev, date: '' }));
     }
   };
 
