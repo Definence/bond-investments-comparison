@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Results } from './_components/Results';
 import { ArrowLeft } from 'lucide-react';
+import { getCurrentDate } from '../lib/date';
 
 type Dividend = {
   date: string;
@@ -17,6 +18,8 @@ type Bond = {
   redemptionAmount: number;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 type ReturnCalculation = {
@@ -33,13 +36,13 @@ type ReturnCalculation = {
 export default function ResultsPage() {
   const router = useRouter();
   const [bonds, setBonds] = useState<Bond[]>([]);
-  const [purchaseDate, setPurchaseDate] = useState<string>('2025-10-31');
+  // today is current date - for already purchased bonds, use actualPurchaseDate from bond
+  const today = getCurrentDate();
   const [reinvestRate, setReinvestRate] = useState<number>(14);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedBonds = window.localStorage.getItem('bonds_list');
-      const savedPurchaseDate = window.localStorage.getItem('bonds_purchaseDate');
       const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
 
       if (!savedBonds || JSON.parse(savedBonds).length === 0) {
@@ -48,7 +51,6 @@ export default function ResultsPage() {
       }
 
       setBonds(savedBonds ? JSON.parse(savedBonds) : []);
-      setPurchaseDate(savedPurchaseDate || '2025-10-31');
       setReinvestRate(savedReinvestRate ? parseFloat(savedReinvestRate) : 14);
     }
   }, [router]);
@@ -59,7 +61,10 @@ export default function ResultsPage() {
   };
 
   const calculateReturns = (bond: Bond, withReinvest: boolean): ReturnCalculation => {
-    const purchaseDateObj = new Date(purchaseDate);
+    const effectivePurchaseDate = bond.isAlreadyPurchased && bond.actualPurchaseDate
+      ? bond.actualPurchaseDate
+      : today;
+    const purchaseDateObj = new Date(effectivePurchaseDate);
     const redemptionDateObj = new Date(bond.redemptionDate);
     const totalInvestment = bond.price + bond.commission;
     const daysTotal = daysBetween(purchaseDateObj, redemptionDateObj);

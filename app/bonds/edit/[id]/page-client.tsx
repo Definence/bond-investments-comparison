@@ -7,6 +7,7 @@ import { TextInput } from '@/app/components/TextInput';
 import { NumberInput } from '@/app/components/NumberInput';
 import { DateInput } from '@/app/components/DateInput';
 import { HomeDividendsInput } from '@/app/_components/HomeDividendsInput';
+import { getCurrentDate } from '@/app/lib/date';
 
 type Dividend = {
   date: string;
@@ -20,6 +21,8 @@ type Bond = {
   redemptionAmount: number;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 type BondInput = {
@@ -29,6 +32,8 @@ type BondInput = {
   redemptionAmount: string;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 export default function EditBondPage() {
@@ -45,7 +50,9 @@ export default function EditBondPage() {
     commission: '',
     redemptionAmount: '',
     redemptionDate: '',
-    dividends: []
+    dividends: [],
+    isAlreadyPurchased: false,
+    actualPurchaseDate: undefined
   });
 
   const [currentDividend, setCurrentDividend] = useState({
@@ -69,7 +76,9 @@ export default function EditBondPage() {
             commission: bondToEdit.commission.toString(),
             redemptionAmount: bondToEdit.redemptionAmount.toString(),
             redemptionDate: bondToEdit.redemptionDate,
-            dividends: bondToEdit.dividends
+            dividends: bondToEdit.dividends,
+            isAlreadyPurchased: bondToEdit.isAlreadyPurchased || false,
+            actualPurchaseDate: bondToEdit.actualPurchaseDate
           });
         } else {
           // Invalid index, redirect to home
@@ -115,7 +124,9 @@ export default function EditBondPage() {
               commission: parseFloat(currentBond.commission) || 0,
               redemptionAmount: parseFloat(currentBond.redemptionAmount),
               redemptionDate: currentBond.redemptionDate,
-              dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+              dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+              isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
+              actualPurchaseDate: currentBond.actualPurchaseDate
             };
             window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
             router.push('/');
@@ -188,6 +199,31 @@ export default function EditBondPage() {
                 placeholder="0"
                 onChangeAsString={true}
               />
+              {currentBond.isAlreadyPurchased && (
+                <DateInput
+                  label="Дата покупки"
+                  value={currentBond.actualPurchaseDate || getCurrentDate()}
+                  onChange={(value: string) => setCurrentBond({...currentBond, actualPurchaseDate: value})}
+                />
+              )}
+
+              <div className="md:col-span-2">
+                <label className="flex items-center gap-2 cursor-pointer mb-3">
+                  <input
+                    type="checkbox"
+                    checked={currentBond.isAlreadyPurchased || false}
+                    onChange={(e) => setCurrentBond({
+                      ...currentBond,
+                      isAlreadyPurchased: e.target.checked,
+                      actualPurchaseDate: e.target.checked ? (currentBond.actualPurchaseDate || getCurrentDate()) : undefined
+                    })}
+                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Порахувати дохідність вже куплених ЦП
+                  </span>
+                </label>
+              </div>
             </div>
 
             <HomeDividendsInput

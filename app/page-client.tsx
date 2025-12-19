@@ -5,7 +5,6 @@ import { HomeSettings } from './_components/HomeSettings';
 import { HomeBondsList } from './_components/HomeBondsList';
 import { HomeBondForm } from './_components/HomeBondForm';
 import { HomeHeader } from './_components/HomeHeader';
-import { getCurrentDate } from './lib/date';
 
 type Dividend = {
   date: string;
@@ -19,6 +18,8 @@ type Bond = {
   redemptionAmount: number;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 type BondInput = {
@@ -28,11 +29,12 @@ type BondInput = {
   redemptionAmount: string;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 const BondsCalculator = () => {
   // Initialize with default values to ensure server/client match
-  const [purchaseDate, setPurchaseDate] = useState<string>(getCurrentDate());
   const [reinvestRate, setReinvestRate] = useState<number>(14);
   const [bonds, setBonds] = useState<Bond[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -71,7 +73,9 @@ const BondsCalculator = () => {
     commission: '',
     redemptionAmount: '',
     redemptionDate: '',
-    dividends: []
+    dividends: [],
+    isAlreadyPurchased: false,
+    actualPurchaseDate: undefined
   });
 
   const [currentDividend, setCurrentDividend] = useState({
@@ -107,7 +111,9 @@ const BondsCalculator = () => {
         commission: parseFloat(currentBond.commission) || 0,
         redemptionAmount: parseFloat(currentBond.redemptionAmount),
         redemptionDate: currentBond.redemptionDate,
-        dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+        isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
+        actualPurchaseDate: currentBond.actualPurchaseDate
       }]);
       setCurrentBond({
         name: '',
@@ -115,7 +121,9 @@ const BondsCalculator = () => {
         commission: '',
         redemptionAmount: '',
         redemptionDate: '',
-        dividends: []
+        dividends: [],
+        isAlreadyPurchased: false,
+        actualPurchaseDate: undefined
       });
     }
   };
@@ -127,7 +135,6 @@ const BondsCalculator = () => {
   const clearAllData = () => {
     if (typeof window !== 'undefined' && window.confirm('Видалити всі збережені дані? Ця дія незворотна.')) {
       setBonds([]);
-      setPurchaseDate(getCurrentDate());
       setReinvestRate(14);
       window.localStorage.removeItem('bonds_list');
       window.localStorage.removeItem('bonds_reinvestRate');
@@ -173,8 +180,6 @@ const BondsCalculator = () => {
           />
 
           <HomeSettings
-            purchaseDate={purchaseDate}
-            onPurchaseDateChange={setPurchaseDate}
             reinvestRate={reinvestRate}
             onReinvestRateChange={setReinvestRate}
           />

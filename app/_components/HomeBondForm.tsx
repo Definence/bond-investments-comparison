@@ -4,6 +4,7 @@ import { TextInput } from '../components/TextInput';
 import { NumberInput } from '../components/NumberInput';
 import { DateInput } from '../components/DateInput';
 import { HomeDividendsInput } from './HomeDividendsInput';
+import { getCurrentDate } from '../lib/date';
 
 type Dividend = {
   date: string;
@@ -17,6 +18,8 @@ type BondInput = {
   redemptionAmount: string;
   redemptionDate: string;
   dividends: Dividend[];
+  isAlreadyPurchased?: boolean;
+  actualPurchaseDate?: string;
 };
 
 type HomeBondFormProps = {
@@ -82,6 +85,31 @@ export const HomeBondForm: React.FC<HomeBondFormProps> = ({
           placeholder="0"
           onChangeAsString={true}
         />
+        {currentBond.isAlreadyPurchased && (
+          <DateInput
+            label="Дата покупки"
+            value={currentBond.actualPurchaseDate || getCurrentDate()}
+            onChange={(value) => setCurrentBond({...currentBond, actualPurchaseDate: value})}
+          />
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={currentBond.isAlreadyPurchased || false}
+            onChange={(e) => setCurrentBond({
+              ...currentBond,
+              isAlreadyPurchased: e.target.checked,
+              actualPurchaseDate: e.target.checked ? (currentBond.actualPurchaseDate || getCurrentDate()) : undefined
+            })}
+            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            Порахувати дохідність вже куплених ЦП
+          </span>
+        </label>
       </div>
 
       <HomeDividendsInput
