@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { DateInput } from '../components/DateInput';
 import { NumberInput } from '../components/NumberInput';
@@ -30,12 +30,23 @@ export const HomeDividendsInput: React.FC<HomeDividendsInputProps> = ({
   formatDate,
   formatNumber,
 }) => {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAddDividend = () => {
+    onAddDividend();
+    // Focus the date input after a short delay to ensure state has updated
+    setTimeout(() => {
+      dateInputRef.current?.focus();
+    }, 0);
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg mb-4">
       <h3 className="font-semibold text-gray-800 mb-3">Дивіденди</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
         <DateInput
+          ref={dateInputRef}
           label="Дата виплати"
           value={currentDividend.date}
           onChange={(value) => setCurrentDividend({...currentDividend, date: value})}
@@ -53,7 +64,7 @@ export const HomeDividendsInput: React.FC<HomeDividendsInputProps> = ({
         />
         <div className="flex items-end">
           <button
-            onClick={onAddDividend}
+            onClick={handleAddDividend}
             className="w-full px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />

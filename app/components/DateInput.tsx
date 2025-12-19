@@ -9,14 +9,14 @@ type DateInputProps = {
   focusColor?: 'purple' | 'indigo';
 };
 
-export const DateInput: React.FC<DateInputProps> = ({
+export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(({
   label,
   value,
   onChange,
   className = '',
   size = 'normal',
   focusColor = 'purple',
-}) => {
+}, ref) => {
   const padding = size === 'small' ? 'px-3' : 'px-4';
   const focusRing = focusColor === 'indigo'
     ? 'focus:ring-indigo-500 focus:border-indigo-500'
@@ -28,6 +28,7 @@ export const DateInput: React.FC<DateInputProps> = ({
         {label}
       </label>
       <input
+        ref={ref}
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -35,4 +36,6 @@ export const DateInput: React.FC<DateInputProps> = ({
       />
     </div>
   );
-};
+});
+
+DateInput.displayName = 'DateInput';
