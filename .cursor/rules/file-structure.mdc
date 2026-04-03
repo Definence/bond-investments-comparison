@@ -10,6 +10,21 @@ alwaysApply: true
 - Examples: `TextInput`, `NumberInput`, `DateInput`, `Button`, `Card`
 - Export from `app/components/index.ts`
 
+### Reusable component with colocated files
+
+When a reusable component has **one or more** related modules (custom hooks, styles-only files, small helpers used only by that component), **group them in a folder** named like the component:
+
+- **Location**: `app/components/[ComponentName]/`
+- **`[ComponentName].tsx`** — main component (PascalCase, matches folder)
+- **No `index.ts` barrel inside the folder** unless there is a clear need; re-export from `app/components/index.ts` using explicit paths (e.g. `export { Dropdown } from './Dropdown/Dropdown'`), or import from `@/app/components/Dropdown/Dropdown` where appropriate.
+- **Hooks** used only by this component live next to it, e.g. `useDropdownOutsideDismiss.ts` (use a **dropdown-prefixed** name when the hook is specific to that component’s behavior — not a generic “click outside” name). Route-local hooks stay in `app/[route]/_hooks/`, not here.
+- **Example:**
+```
+app/components/Dropdown/
+├── Dropdown.tsx
+└── useDropdownOutsideDismiss.ts
+```
+
 ## Page-Specific Components
 - **Location**: `app/_components/`
 - Specific to a single page/route
@@ -90,6 +105,7 @@ app/
 ├── components/        # Reusable (across routes)
 │   ├── ui/           # UI primitives (optional)
 │   ├── TextInput.tsx
+│   ├── Dropdown/     # folder when component + hooks/helpers
 │   └── index.ts
 └── _components/      # Page-specific (private)
     └── DividendsInput.tsx
@@ -115,7 +131,24 @@ app/
 
 1. **Route files** (lowercase): `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`
 2. **Client components** (kebab-case): `*-client.tsx` suffix (e.g., `page-client.tsx`)
-3. **Private folders** (underscore): `_components/`, `_lib/`, `_types/`
+3. **Private folders** (underscore): `_components/`, `_hooks/`, `_lib/`, `_types/`
+
+## Custom hooks (local vs global)
+
+**Route-local hooks** — used only by one route’s `page-client` (or components under that route):
+
+- **Location**: `app/[route]/_hooks/` in the **same route segment** as `page.tsx` / `page-client.tsx`
+- Example: `app/_hooks/useBondInclusion.ts` for `app/page-client.tsx` (home)
+- Nested example: `app/results/_hooks/useSomething.ts` for `app/results/page-client.tsx`
+- File naming: `use*.ts` (e.g. `useBondInclusion.ts`)
+- Do **not** park single-route hooks in a generic `app/_lib/` at the app root; `_hooks/` next to the page makes ownership obvious
+
+**Shared / global hooks** — reused across unrelated routes:
+
+- **Location**: a single project-wide place (e.g. `hooks/` at repo root, or `lib/hooks/`, or `app/hooks/`) — pick one convention
+- Extract only when a second consumer appears
+
+**`_lib/`** — route-local **non-hook** utilities (plain functions, small modules), shared types, etc. Not the default home for React hooks.
 
 ## Route Decisions
 
@@ -175,9 +208,14 @@ app/
 ├── components/                   # Reusable
 │   ├── ui/
 │   ├── TextInput.tsx
+│   ├── Dropdown/
+│   │   ├── Dropdown.tsx
+│   │   └── useDropdownOutsideDismiss.ts
 │   └── index.ts
 ├── _components/                  # Page-specific
 │   └── DividendsInput.tsx
+├── _hooks/                       # Page-local hooks (same route as page-client)
+│   └── useBondInclusion.ts
 ├── about/
 │   ├── page.tsx                  # /about
 │   └── _components/
@@ -188,6 +226,7 @@ app/
 │   ├── loading.tsx
 │   ├── error.tsx
 │   ├── _components/
+│   ├── _hooks/
 │   ├── _lib/
 │   └── settings/
 │       └── page.tsx              # /dashboard/settings
@@ -208,5 +247,6 @@ app/[route-name]/
 ├── error.tsx             # Optional
 ├── not-found.tsx         # Optional
 ├── _components/          # Optional
-└── _lib/                 # Optional
+├── _hooks/               # Optional — hooks for this route only
+└── _lib/                 # Optional — non-hook utilities for this route
 ```

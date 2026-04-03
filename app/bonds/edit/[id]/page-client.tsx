@@ -20,6 +20,7 @@ type Bond = {
   dividends: Dividend[];
   isAlreadyPurchased?: boolean;
   actualPurchaseDate?: string;
+  includedInCalculation: boolean;
 };
 
 type BondInput = {
@@ -115,6 +116,7 @@ export default function EditBondPage() {
         if (savedBonds) {
           const bonds: Bond[] = JSON.parse(savedBonds);
           if (bondIndex >= 0 && bondIndex < bonds.length) {
+            const existing = bonds[bondIndex];
             bonds[bondIndex] = {
               name: currentBond.name,
               price: parseFloat(currentBond.price),
@@ -123,7 +125,8 @@ export default function EditBondPage() {
               redemptionDate: currentBond.redemptionDate,
               dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
               isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
-              actualPurchaseDate: currentBond.actualPurchaseDate
+              actualPurchaseDate: currentBond.actualPurchaseDate,
+              includedInCalculation: existing.includedInCalculation,
             };
             window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
             router.push('/');

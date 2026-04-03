@@ -20,6 +20,7 @@ type Bond = {
   dividends: Dividend[];
   isAlreadyPurchased?: boolean;
   actualPurchaseDate?: string;
+  includedInCalculation: boolean;
 };
 
 type ReturnCalculation = {
@@ -50,7 +51,14 @@ export default function ResultsPage() {
         return;
       }
 
-      setBonds(savedBonds ? JSON.parse(savedBonds) : []);
+      const parsed: Bond[] = JSON.parse(savedBonds);
+      const bondsForCalculation = parsed.filter((b) => b.includedInCalculation);
+      if (bondsForCalculation.length === 0) {
+        router.push('/');
+        return;
+      }
+
+      setBonds(bondsForCalculation);
       setReinvestRate(savedReinvestRate ? parseFloat(savedReinvestRate) : 14);
     }
   }, [router]);

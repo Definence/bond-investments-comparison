@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { BondForm } from '../_components/BondForm';
 import { BackButton } from '@/app/components/BackButton';
 
@@ -20,6 +19,7 @@ type Bond = {
   dividends: Dividend[];
   isAlreadyPurchased?: boolean;
   actualPurchaseDate?: string;
+  includedInCalculation: boolean;
 };
 
 type BondInput = {
@@ -43,7 +43,7 @@ export default function NewBondPage() {
     if (typeof window !== 'undefined') {
       const savedBonds = window.localStorage.getItem('bonds_list');
       if (savedBonds) {
-        setBonds(JSON.parse(savedBonds));
+        setBonds(JSON.parse(savedBonds) as Bond[]);
       }
     }
   }, []);
@@ -94,7 +94,8 @@ export default function NewBondPage() {
         redemptionDate: currentBond.redemptionDate,
         dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
         isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
-        actualPurchaseDate: currentBond.actualPurchaseDate
+        actualPurchaseDate: currentBond.actualPurchaseDate,
+        includedInCalculation: true
       }];
       setBonds(newBonds);
       if (typeof window !== 'undefined') {

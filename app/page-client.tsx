@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { HomeSettings } from './_components/HomeSettings';
 import { HomeBondsList } from './_components/HomeBondsList';
 import { HomeHeader } from './_components/HomeHeader';
 import { HomeActionButtons } from './_components/HomeActionButtons';
+import { useBondInclusion } from './_hooks/useBondInclusion';
 
 type Dividend = {
   date: string;
@@ -21,6 +21,7 @@ type Bond = {
   dividends: Dividend[];
   isAlreadyPurchased?: boolean;
   actualPurchaseDate?: string;
+  includedInCalculation: boolean;
 };
 
 const BondsCalculator = () => {
@@ -40,7 +41,7 @@ const BondsCalculator = () => {
 
     const savedBonds = window.localStorage.getItem('bonds_list');
     if (savedBonds) {
-      setBonds(JSON.parse(savedBonds));
+      setBonds(JSON.parse(savedBonds) as Bond[]);
     }
   }, []);
 
@@ -56,8 +57,6 @@ const BondsCalculator = () => {
       window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
     }
   }, [bonds, isHydrated]);
-
-  const router = useRouter();
 
   const removeBond = (index: number) => {
     setBonds(bonds.filter((_, i) => i !== index));
@@ -83,7 +82,8 @@ const BondsCalculator = () => {
         dividends: [
           { date: '2025-11-19', amount: 817.5 },
           { date: '2026-05-20', amount: 817.5 }
-        ]
+        ],
+        includedInCalculation: true
       },
       {
         name: '16% дія',
@@ -91,22 +91,32 @@ const BondsCalculator = () => {
         commission: 0,
         redemptionAmount: 12450,
         redemptionDate: '2026-11-18',
-        dividends: []
+        dividends: [],
+        includedInCalculation: true
       }
     ];
     setBonds(testBonds);
   };
 
+  const {
+    toggleIncluded,
+    selectAllIncluded,
+    deselectAllIncluded,
+    hasAnyIncludedForCalculation,
+  } = useBondInclusion(bonds, setBonds);
+
   const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <HomeHeader
             onClearAllData={clearAllData}
             onLoadTestData={loadTestData}
             hasBonds={bonds.length > 0}
+            onSelectAll={selectAllIncluded}
+            onDeselectAll={deselectAllIncluded}
           />
 
           <HomeSettings
@@ -117,10 +127,11 @@ const BondsCalculator = () => {
           <HomeBondsList
             bonds={bonds}
             onRemoveBond={removeBond}
+            onToggleIncluded={toggleIncluded}
             formatNumber={formatNumber}
           />
 
-          <HomeActionButtons />
+          <HomeActionButtons canNavigateToResults={hasAnyIncludedForCalculation} />
         </div>
       </div>
     </div>
