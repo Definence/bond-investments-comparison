@@ -61,10 +61,15 @@ export const ResultsBondReturnCalculation: React.FC<ResultsBondReturnCalculation
             <span className={`font-bold text-xl ${returnClass}`}>{calculation.totalReturn.toFixed(2)}%</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-800 font-medium">Річна дохідність:</span>
+            <span className="text-gray-800 font-medium" title="Еквівалентна ставка депозиту з капіталізацією">Річна дохідність (CAGR):</span>
             <span className={`font-bold text-2xl ${annualReturnClass}`}>{calculation.annualReturn.toFixed(2)}%</span>
           </div>
         </div>
+        {isWithReinvest && (
+          <p className="text-xs text-gray-500 pt-2">
+            Модель припускає миттєве реінвестування всього купона; реально купон менший за мінімальний лот, тож реінвестування відбувається з лагом і фактичний дохід трохи нижчий.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
 import { BackButton } from '@/app/components/BackButton';
 import { BondForm } from '../../_components/BondForm';
+import { useHydrated, useLocalStorageValue, writeLocalStorage } from '@/app/_hooks/useLocalStorage';
 
 type Dividend = {
   date: string;
@@ -40,54 +41,51 @@ export default function EditBondPage() {
   const bondId = params?.id as string;
   const bondIndex = bondId ? parseInt(bondId, 10) : -1;
 
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [bond, setBond] = useState<Bond | null>(null);
-  const [currentBond, setCurrentBond] = useState<BondInput>({
-    name: '',
-    price: '',
-    commission: '',
-    redemptionAmount: '',
-    redemptionDate: '',
-    dividends: [],
-    isAlreadyPurchased: false,
-    actualPurchaseDate: undefined
-  });
+  const isHydrated = useHydrated();
+  const savedBonds = useLocalStorageValue('bonds_list');
+  const bonds = useMemo<Bond[]>(() => (savedBonds ? JSON.parse(savedBonds) : []), [savedBonds]);
+  const bondToEdit = bondIndex >= 0 && bondIndex < bonds.length ? bonds[bondIndex] : null;
+
+  // Invalid index or no bonds — redirect to home
+  useEffect(() => {
+    if (isHydrated && !bondToEdit) {
+      router.push('/');
+    }
+  }, [isHydrated, bondToEdit, router]);
+
+  if (!isHydrated || !bondToEdit) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="text-center text-gray-600">Завантаження...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <EditBondForm key={bondIndex} bondIndex={bondIndex} bondToEdit={bondToEdit} />;
+}
+
+function EditBondForm({ bondIndex, bondToEdit }: { bondIndex: number; bondToEdit: Bond }) {
+  const router = useRouter();
+
+  const [currentBond, setCurrentBond] = useState<BondInput>(() => ({
+    name: bondToEdit.name,
+    price: bondToEdit.price.toString(),
+    commission: bondToEdit.commission.toString(),
+    redemptionAmount: bondToEdit.redemptionAmount.toString(),
+    redemptionDate: bondToEdit.redemptionDate,
+    dividends: bondToEdit.dividends,
+    isAlreadyPurchased: bondToEdit.isAlreadyPurchased || false,
+    actualPurchaseDate: bondToEdit.actualPurchaseDate
+  }));
 
   const [currentDividend, setCurrentDividend] = useState({
     date: '',
     amount: ''
   });
-
-  // Load bond from localStorage after hydration
-  useEffect(() => {
-    setIsHydrated(true);
-    if (typeof window !== 'undefined' && bondIndex >= 0) {
-      const savedBonds = window.localStorage.getItem('bonds_list');
-      if (savedBonds) {
-        const bonds: Bond[] = JSON.parse(savedBonds);
-        if (bondIndex >= 0 && bondIndex < bonds.length) {
-          const bondToEdit = bonds[bondIndex];
-          setBond(bondToEdit);
-          setCurrentBond({
-            name: bondToEdit.name,
-            price: bondToEdit.price.toString(),
-            commission: bondToEdit.commission.toString(),
-            redemptionAmount: bondToEdit.redemptionAmount.toString(),
-            redemptionDate: bondToEdit.redemptionDate,
-            dividends: bondToEdit.dividends,
-            isAlreadyPurchased: bondToEdit.isAlreadyPurchased || false,
-            actualPurchaseDate: bondToEdit.actualPurchaseDate
-          });
-        } else {
-          // Invalid index, redirect to home
-          router.push('/');
-        }
-      } else {
-        // No bonds found, redirect to home
-        router.push('/');
-      }
-    }
-  }, [bondIndex, router]);
 
   const addDividend = () => {
     if (currentDividend.date && currentDividend.amount) {
@@ -111,26 +109,24 @@ export default function EditBondPage() {
 
   const saveBond = () => {
     if (currentBond.name && currentBond.price && currentBond.redemptionDate && currentBond.redemptionAmount) {
-      if (typeof window !== 'undefined' && bondIndex >= 0) {
-        const savedBonds = window.localStorage.getItem('bonds_list');
-        if (savedBonds) {
-          const bonds: Bond[] = JSON.parse(savedBonds);
-          if (bondIndex >= 0 && bondIndex < bonds.length) {
-            const existing = bonds[bondIndex];
-            bonds[bondIndex] = {
-              name: currentBond.name,
-              price: parseFloat(currentBond.price),
-              commission: parseFloat(currentBond.commission) || 0,
-              redemptionAmount: parseFloat(currentBond.redemptionAmount),
-              redemptionDate: currentBond.redemptionDate,
-              dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-              isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
-              actualPurchaseDate: currentBond.actualPurchaseDate,
-              includedInCalculation: existing.includedInCalculation,
-            };
-            window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
-            router.push('/');
-          }
+      const savedBonds = window.localStorage.getItem('bonds_list');
+      if (savedBonds) {
+        const bonds: Bond[] = JSON.parse(savedBonds);
+        if (bondIndex >= 0 && bondIndex < bonds.length) {
+          const existing = bonds[bondIndex];
+          bonds[bondIndex] = {
+            name: currentBond.name,
+            price: parseFloat(currentBond.price),
+            commission: parseFloat(currentBond.commission) || 0,
+            redemptionAmount: parseFloat(currentBond.redemptionAmount),
+            redemptionDate: currentBond.redemptionDate,
+            dividends: currentBond.dividends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+            isAlreadyPurchased: currentBond.isAlreadyPurchased || false,
+            actualPurchaseDate: currentBond.actualPurchaseDate,
+            includedInCalculation: existing.includedInCalculation,
+          };
+          writeLocalStorage('bonds_list', JSON.stringify(bonds));
+          router.push('/');
         }
       }
     }
@@ -138,18 +134,6 @@ export default function EditBondPage() {
 
   const formatNumber = (num: number): string => num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString('uk-UA', { year: 'numeric', month: 'short', day: 'numeric' });
-
-  if (!isHydrated || !bond) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center text-gray-600">Завантаження...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">

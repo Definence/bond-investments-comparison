@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Results } from './_components/Results';
 import { getCurrentDate } from '../lib/date';
 import { BackButton } from '@/app/components/BackButton';
+import { useHydrated, useLocalStorageValue } from '@/app/_hooks/useLocalStorage';
 
 type Dividend = {
   date: string;
@@ -36,32 +37,25 @@ type ReturnCalculation = {
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [bonds, setBonds] = useState<Bond[]>([]);
   // today is current date - for already purchased bonds, use actualPurchaseDate from bond
   const today = getCurrentDate();
-  const [reinvestRate, setReinvestRate] = useState<number>(14);
 
+  const isHydrated = useHydrated();
+  const savedBonds = useLocalStorageValue('bonds_list');
+  const savedReinvestRate = useLocalStorageValue('bonds_reinvestRate');
+
+  const reinvestRate = savedReinvestRate ? parseFloat(savedReinvestRate) : 14;
+  const bonds = useMemo<Bond[]>(() => {
+    const parsed: Bond[] = savedBonds ? JSON.parse(savedBonds) : [];
+    return parsed.filter((b) => b.includedInCalculation);
+  }, [savedBonds]);
+
+  // Нема чого рахувати — повертаємось на головну
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedBonds = window.localStorage.getItem('bonds_list');
-      const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
-
-      if (!savedBonds || JSON.parse(savedBonds).length === 0) {
-        router.push('/');
-        return;
-      }
-
-      const parsed: Bond[] = JSON.parse(savedBonds);
-      const bondsForCalculation = parsed.filter((b) => b.includedInCalculation);
-      if (bondsForCalculation.length === 0) {
-        router.push('/');
-        return;
-      }
-
-      setBonds(bondsForCalculation);
-      setReinvestRate(savedReinvestRate ? parseFloat(savedReinvestRate) : 14);
+    if (isHydrated && bonds.length === 0) {
+      router.push('/');
     }
-  }, [router]);
+  }, [isHydrated, bonds.length, router]);
 
   const daysBetween = (date1: Date, date2: Date): number => {
     const diff = date2.getTime() - date1.getTime();
@@ -86,16 +80,20 @@ export default function ResultsPage() {
       totalDividends += div.amount;
 
       if (withReinvest) {
-        const daysToRedemption = daysBetween(divDate, redemptionDateObj);
+        const daysToRedemption = Math.max(daysBetween(divDate, redemptionDateObj), 0);
         const yearsToRedemption = daysToRedemption / 365;
-        reinvestIncome += div.amount * (reinvestRate / 100) * yearsToRedemption;
+        // Складний відсоток: купон реінвестується з капіталізацією до дати погашення
+        reinvestIncome += div.amount * (Math.pow(1 + reinvestRate / 100, yearsToRedemption) - 1);
       }
     });
 
     const totalReceived = bond.redemptionAmount + totalDividends + reinvestIncome;
     const profit = totalReceived - totalInvestment;
-    const totalReturn = (profit / totalInvestment) * 100;
-    const annualReturn = (totalReturn / yearsTotal);
+    const totalReturn = totalInvestment > 0 ? (profit / totalInvestment) * 100 : 0;
+    // CAGR — еквівалентна ставка депозиту з капіталізацією
+    const annualReturn = totalInvestment > 0 && totalReceived > 0 && yearsTotal > 0
+      ? (Math.pow(totalReceived / totalInvestment, 1 / yearsTotal) - 1) * 100
+      : 0;
 
     return {
       totalInvestment,
@@ -124,7 +122,7 @@ export default function ResultsPage() {
     withReinvest: calculateReturns(bond, true)
   }));
 
-  if (bonds.length === 0) {
+  if (!isHydrated || bonds.length === 0) {
     return null;
   }
 

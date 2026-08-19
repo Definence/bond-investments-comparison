@@ -53,14 +53,14 @@ export const ResultsComparison: React.FC<ResultsComparisonProps> = ({ results, f
   return (
     <>
       <ResultsComparisonBlock
-        title="Порівняння річної дохідності (з реінвестуванням):"
+        title="Порівняння річної дохідності CAGR (з реінвестуванням):"
         sortedResults={sortedResultsWithReinvest}
         maxAnnualReturn={maxAnnualReturnWithReinvest}
         getAnnualReturn={(r) => r.withReinvest.annualReturn}
         formatDate={formatDate}
       />
       <ResultsComparisonBlock
-        title="Порівняння річної дохідності (без реінвестування):"
+        title="Порівняння річної дохідності CAGR (без реінвестування):"
         sortedResults={sortedResultsWithoutReinvest}
         maxAnnualReturn={maxAnnualReturnWithoutReinvest}
         getAnnualReturn={(r) => r.withoutReinvest.annualReturn}

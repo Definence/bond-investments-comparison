@@ -9,7 +9,10 @@ export function useDropdownOutsideDismiss<T extends HTMLElement = HTMLElement>(
   onClose: () => void
 ) {
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;

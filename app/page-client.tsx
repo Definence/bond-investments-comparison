@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { HomeSettings } from './_components/HomeSettings';
 import { HomeBondsList } from './_components/HomeBondsList';
 import { HomeHeader } from './_components/HomeHeader';
 import { HomeActionButtons } from './_components/HomeActionButtons';
 import { useBondInclusion } from './_hooks/useBondInclusion';
+import { useLocalStorageValue, writeLocalStorage } from './_hooks/useLocalStorage';
 
 type Dividend = {
   date: string;
@@ -25,49 +26,32 @@ type Bond = {
 };
 
 const BondsCalculator = () => {
-  // Initialize with default values to ensure server/client match
-  const [reinvestRate, setReinvestRate] = useState<number>(14);
-  const [bonds, setBonds] = useState<Bond[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
+  // Стан живе в localStorage; на сервері та до гідратації видно дефолти
+  const savedReinvestRate = useLocalStorageValue('bonds_reinvestRate');
+  const savedBonds = useLocalStorageValue('bonds_list');
 
-  // Load from localStorage after hydration
-  useEffect(() => {
-    setIsHydrated(true);
+  const reinvestRate = savedReinvestRate ? parseFloat(savedReinvestRate) : 14;
+  const bonds = useMemo<Bond[]>(() => (savedBonds ? JSON.parse(savedBonds) : []), [savedBonds]);
 
-    const savedReinvestRate = window.localStorage.getItem('bonds_reinvestRate');
-    if (savedReinvestRate) {
-      setReinvestRate(parseFloat(savedReinvestRate));
-    }
-
-    const savedBonds = window.localStorage.getItem('bonds_list');
-    if (savedBonds) {
-      setBonds(JSON.parse(savedBonds) as Bond[]);
-    }
+  const setReinvestRate = useCallback((value: number) => {
+    writeLocalStorage('bonds_reinvestRate', value.toString());
   }, []);
 
-  // Зберігання в localStorage при зміні (тільки після гідратації)
-  useEffect(() => {
-    if (isHydrated) {
-      window.localStorage.setItem('bonds_reinvestRate', reinvestRate.toString());
-    }
-  }, [reinvestRate, isHydrated]);
-
-  useEffect(() => {
-    if (isHydrated) {
-      window.localStorage.setItem('bonds_list', JSON.stringify(bonds));
-    }
-  }, [bonds, isHydrated]);
+  const setBonds: Dispatch<SetStateAction<Bond[]>> = useCallback((action) => {
+    const raw = window.localStorage.getItem('bonds_list');
+    const current: Bond[] = raw ? JSON.parse(raw) : [];
+    const next = typeof action === 'function' ? action(current) : action;
+    writeLocalStorage('bonds_list', JSON.stringify(next));
+  }, []);
 
   const removeBond = (index: number) => {
-    setBonds(bonds.filter((_, i) => i !== index));
+    setBonds((prev) => prev.filter((_, i) => i !== index));
   };
 
   const clearAllData = () => {
-    if (typeof window !== 'undefined' && window.confirm('Видалити всі збережені дані? Ця дія незворотна.')) {
-      setBonds([]);
-      setReinvestRate(14);
-      window.localStorage.removeItem('bonds_list');
-      window.localStorage.removeItem('bonds_reinvestRate');
+    if (window.confirm('Видалити всі збережені дані? Ця дія незворотна.')) {
+      writeLocalStorage('bonds_list', null);
+      writeLocalStorage('bonds_reinvestRate', null);
     }
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NumberInput } from '../components/NumberInput';
+import { NumberInput } from '../components';
 
 type HomeSettingsProps = {
   reinvestRate: number;

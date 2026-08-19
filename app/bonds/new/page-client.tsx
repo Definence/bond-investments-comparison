@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BondForm } from '../_components/BondForm';
 import { BackButton } from '@/app/components/BackButton';
+import { useHydrated, writeLocalStorage } from '@/app/_hooks/useLocalStorage';
 
 type Dividend = {
   date: string;
@@ -35,18 +36,7 @@ type BondInput = {
 
 export default function NewBondPage() {
   const router = useRouter();
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [bonds, setBonds] = useState<Bond[]>([]);
-
-  useEffect(() => {
-    setIsHydrated(true);
-    if (typeof window !== 'undefined') {
-      const savedBonds = window.localStorage.getItem('bonds_list');
-      if (savedBonds) {
-        setBonds(JSON.parse(savedBonds) as Bond[]);
-      }
-    }
-  }, []);
+  const isHydrated = useHydrated();
 
   const [currentBond, setCurrentBond] = useState<BondInput>({
     name: '',
@@ -86,6 +76,8 @@ export default function NewBondPage() {
 
   const addBond = () => {
     if (currentBond.name && currentBond.price && currentBond.redemptionDate && currentBond.redemptionAmount) {
+      const savedBonds = window.localStorage.getItem('bonds_list');
+      const bonds: Bond[] = savedBonds ? JSON.parse(savedBonds) : [];
       const newBonds = [...bonds, {
         name: currentBond.name,
         price: parseFloat(currentBond.price),
@@ -97,10 +89,7 @@ export default function NewBondPage() {
         actualPurchaseDate: currentBond.actualPurchaseDate,
         includedInCalculation: true
       }];
-      setBonds(newBonds);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('bonds_list', JSON.stringify(newBonds));
-      }
+      writeLocalStorage('bonds_list', JSON.stringify(newBonds));
       router.push('/');
     }
   };
